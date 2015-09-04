@@ -7,8 +7,6 @@ var R = require('ramda');
 var Chromosome = require('./chromosome');
 var Population = require('./population');
 
-function noop(callback) {}
-
 function Experiment(options, delegates) {
   // TODO Ensure chromosome is Record
   var Options = Immutable.Record({
@@ -19,11 +17,11 @@ function Experiment(options, delegates) {
   });
 
   var Delegates = Immutable.Record({
-    createRandomChromosome: noop,
-    getFitnessOfChromosome: noop,
-    mutateChromosome: noop,
-    crossoverChromosomes: noop,
-    shouldStopSimulation: noop
+    createRandomChromosome: R.identity,
+    getFitnessOfChromosome: R.identity,
+    mutateChromosome: R.identity,
+    crossoverChromosomes: R.identity,
+    shouldStopSimulation: R.identity
   });
 
   this.options = new Options(options);
