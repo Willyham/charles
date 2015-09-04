@@ -1,11 +1,31 @@
 'use strict';
 var test = require('tape');
 
-var charles = require('../');
+var Charles = require('../');
 
-test('charles', function t(assert) {
-  assert.ok(typeof charles === 'function',
-    'exported correctly');
+test('It should create a new population with the correct size', function createPop(t) {
+  t.plan(1);
 
-  assert.end();
+  var MyChromosome = Charles.Chromosome({
+    a: null,
+    b: null
+  });
+
+  var delegates = {
+    createRandomChromosome: function createChromosome(callback) {
+      callback(null, new MyChromosome({
+        a: Math.random(),
+        b: Math.random()
+      }));
+    }
+  };
+
+  var options = {
+    populationSize: 10
+  };
+  var experiment = new Charles.Experiment(options, delegates);
+  experiment.init().then(function checkResults() {
+    t.equal(experiment.populuation.getMembers().count(), 10);
+  });
 });
+

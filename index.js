@@ -1,5 +1,9 @@
 'use strict';
 
-module.exports = charles;
+var Experiment = require('./genetic/experiment');
+var Chromosome = require('./genetic/chromosome');
 
-function charles() {}
+module.exports = {
+  Experiment: Experiment,
+  Chromosome: Chromosome
+};
