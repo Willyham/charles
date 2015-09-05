@@ -7,6 +7,11 @@ var R = require('ramda');
 var Chromosome = require('./chromosome');
 var Population = require('./population');
 
+function asyncNoop() {
+  var callback = arguments[arguments.length - 1];
+  callback(null);
+}
+
 function Experiment(options, delegates) {
   // TODO Ensure chromosome is Record
   var Options = Immutable.Record({
@@ -17,11 +22,11 @@ function Experiment(options, delegates) {
   });
 
   var Delegates = Immutable.Record({
-    createRandomChromosome: R.identity,
-    getFitnessOfChromosome: R.identity,
-    mutateChromosome: R.identity,
-    crossoverChromosomes: R.identity,
-    shouldStopSimulation: R.identity
+    createRandomChromosome: asyncNoop,
+    getFitnessOfChromosome: asyncNoop,
+    mutateChromosome: asyncNoop,
+    crossoverChromosomes: asyncNoop,
+    shouldStopSimulation: asyncNoop
   });
 
   this.options = new Options(options);
@@ -32,21 +37,59 @@ function Experiment(options, delegates) {
 
   // Initial setup
   this.populuation = new Population();
+  this.setInitialized(false);
 }
+
+Experiment.prototype.setInitialized = function setInitialized(value) {
+  this.isInitialized = value;
+};
 
 Experiment.prototype.init = function init(callback) {
   var self = this;
-  var listOfPopulationSize = R.times([].push, this.options.populationSize);
-  var createPromises = P.map(listOfPopulationSize, function createRandom(id) {
-    return self.delegates.createRandomChromosome();
-  });
+
+  var getChromosomePromises = Immutable.Range(0, Infinity)
+    .map(function createRandom() {
+      return self.delegates.createRandomChromosome();
+    })
+    .takeUntil(function isFullPopulation(chromosome, iteration) {
+      return iteration === self.options.populationSize;
+    })
+    .toArray();
 
   var addToPopulation = this.populuation.addMember.bind(this.populuation);
   var addAllToPopulation = R.forEach(addToPopulation);
 
-  return createPromises
+  var setIsInitialized = R.partial(this.setInitialized.bind(this), true);
+
+  return P.all(getChromosomePromises)
     .then(addAllToPopulation)
+    .then(setIsInitialized)
     .nodeify(callback);
+};
+
+Experiment.prototype.run = function run(callback) {
+  if (!this.isInitialized) {
+    throw new Error('Must initialize before running');
+  }
+
+  var self = this;
+  function runLoop() {
+    var generation = self.populuation.generation;
+    var members = self.populuation.getMembers();
+
+    return self.delegates.shouldStopSimulation(generation, members)
+      .then(function onStopResult(shouldStop) {
+        if (shouldStop) {
+          return P.resolve().nodeify(callback);
+        }
+
+        // Do evolutionary work here
+        self.populuation.incrementGeneration();
+        return self.populuation.calculateFitness(self.delegates.getFitnessOfChromosome)
+          .then(runLoop);
+      });
+  }
+  return runLoop();
 };
 
 module.exports = Experiment;
