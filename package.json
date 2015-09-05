@@ -1,7 +1,7 @@
 {
   "name": "charles",
   "description": "Genetic programming framework in JavaScript",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": "Willyham <willyd@uber.com>",
   "keywords": [],
   "engines": {
@@ -28,6 +28,5 @@
     "lint": "uber-standard",
     "test": "npm run lint -s && npm run cover -s",
     "view-cover": "istanbul report html && opn ./coverage/index.html"
-  },
-  "private": true
+  }
 }
