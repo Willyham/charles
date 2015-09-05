@@ -1,8 +1,8 @@
-# charles
+# Species
 
-Genetic programming framework for Node.
+Asynchronous genetic programming framework for Node.
 
-Charles allows you to quickly run simple evolutionary computation problems by defining a set of
+Species allows you to quickly run simple evolutionary computation problems by defining a set of
 delegate functions which describe the properties of your chromosomes and how they interact.
 
 # Install

@@ -1,6 +1,6 @@
 {
-  "name": "charles",
-  "description": "Genetic programming framework in JavaScript",
+  "name": "species",
+  "description": "Asynchronous genetic programming framework in Node",
   "version": "0.0.1",
   "author": "Willyham <willyd@uber.com>",
   "keywords": [],
