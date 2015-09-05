@@ -7,7 +7,7 @@ delegate functions which describe the properties of your chromosomes and how the
 
 # Install
 
-`npm install charles`
+`npm install species`
 
 # Usage
 
