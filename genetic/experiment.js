@@ -36,7 +36,7 @@ function Experiment(options, delegates) {
   this.delegates = this.delegates.toSeq().map(P.promisify).toObject();
 
   // Initial setup
-  this.populuation = new Population();
+  this.populuation = new Population(this.options);
   this.setInitialized(false);
 }
 
@@ -71,6 +71,8 @@ Experiment.prototype.run = function run(callback) {
   if (!this.isInitialized) {
     throw new Error('Must initialize before running');
   }
+  var cull = this.populuation.cull.bind(this.populuation);
+  var breed = this.populuation.fillByBreeding.bind(this.populuation, this.delegates.crossoverChromosomes);
 
   var self = this;
   function runLoop() {
@@ -86,6 +88,8 @@ Experiment.prototype.run = function run(callback) {
         // Do evolutionary work here
         self.populuation.incrementGeneration();
         return self.populuation.calculateFitness(self.delegates.getFitnessOfChromosome)
+          .then(cull)
+          .then(breed)
           .then(runLoop);
       });
   }

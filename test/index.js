@@ -18,6 +18,17 @@ var simpleDelegates = Immutable.fromJS({
       a: Math.random(),
       b: Math.random()
     }));
+  },
+
+  crossoverChromosomes: function crossoverChromosome(parent1, parent2, callback) {
+    callback(null, new SimpleChromosome({
+      a: parent1.get('a'),
+      b: parent2.get('b')
+    }));
+  },
+
+  getFitnessOfChromosome: function getFitnessOfChromosome(chromosome, callback) {
+    callback(null, Math.floor(Math.random() * 100) + 1);
   }
 });
 
@@ -99,3 +110,7 @@ test('It should calculate new fitness', function testCalcFitness(t) {
       sandbox.restore();
     });
 });
+
+// TODO: Test cull by seeding with [1..100] fitness and check number culled
+// TODO: Test breed by culling all and checking breedFunc called `pop` times
+// TODO: Test crossover by pop of 1 with (x,y) becomes (y,x)

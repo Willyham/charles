@@ -12,6 +12,7 @@
   "main": "index.js",
   "dependencies": {
     "bluebird": "^2.9.34",
+    "fast-stats": "0.0.3",
     "immutable": "^3.7.5",
     "ramda": "^0.17.1"
   },
