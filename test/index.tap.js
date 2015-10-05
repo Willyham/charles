@@ -1,52 +1,29 @@
 'use strict';
 var test = require('tape');
 var sinon = require('sinon');
-var Immutable = require('immutable');
 
 var Charles = require('../');
+var simpleDelegates = require('./delegates/simple');
 
 var sandbox = sinon.sandbox.create();
-
-var SimpleChromosome = Charles.Chromosome({
-  a: null,
-  b: null
-});
-
-var simpleDelegates = Immutable.fromJS({
-  createRandomChromosome: function createChromosome(callback) {
-    callback(null, new SimpleChromosome({
-      a: Math.random(),
-      b: Math.random()
-    }));
-  },
-
-  crossoverChromosomes: function crossoverChromosome(parent1, parent2, callback) {
-    callback(null, new SimpleChromosome({
-      a: parent1.get('a'),
-      b: parent2.get('b')
-    }));
-  },
-
-  getFitnessOfChromosome: function getFitnessOfChromosome(chromosome, callback) {
-    callback(null, Math.floor(Math.random() * 100) + 1);
-  }
-});
 
 test('It should create a new population with the correct size', function createPop(t) {
   t.plan(1);
 
-  var options = {
+  var population = new Charles.Population({
     populationSize: 10
-  };
-  var experiment = new Charles.Experiment(options, simpleDelegates.toJS());
+  });
+
+  var experiment = new Charles.Experiment({}, population, simpleDelegates.toJS());
   experiment.init().then(function checkResults() {
-    t.equal(experiment.populuation.getMembers().count(), 10);
+    t.equal(experiment.population.getMembers().count(), 10);
   });
 });
 
 test('It should not run before init', function testNoInit(t) {
   t.plan(1);
-  var experiment = new Charles.Experiment({}, simpleDelegates.toJS());
+  var population = new Charles.Population();
+  var experiment = new Charles.Experiment({}, population, simpleDelegates.toJS());
   t.throws(experiment.run.bind(experiment));
 });
 
@@ -57,12 +34,13 @@ test('It should stop immediately', function testStop(t) {
   });
 
   var delegates = simpleDelegates.set('shouldStopSimulation', shouldStopSimulation);
-  var experiment = new Charles.Experiment({}, delegates.toJS());
+  var population = new Charles.Population();
+  var experiment = new Charles.Experiment({}, population, delegates.toJS());
   experiment.init()
     .then(experiment.run.bind(experiment))
     .then(function checkResults() {
       t.ok(shouldStopSimulation.calledOnce);
-      t.equal(experiment.populuation.generation, 0);
+      t.equal(experiment.population.generation, 0);
       sandbox.restore();
     });
 });
@@ -74,7 +52,8 @@ test('It should run for N generations', function testGenerationLoop(t) {
   });
 
   var delegates = simpleDelegates.set('shouldStopSimulation', shouldStopSimulation);
-  var experiment = new Charles.Experiment({}, delegates.toJS());
+  var population = new Charles.Population();
+  var experiment = new Charles.Experiment({}, population, delegates.toJS());
   experiment.init()
     .then(experiment.run.bind(experiment))
     .then(function checkResults() {
@@ -92,18 +71,18 @@ test('It should calculate new fitness', function testCalcFitness(t) {
     callback(null, 1);
   });
 
-  var options = {
+  var population = new Charles.Population({
     populationSize: 2
-  };
+  });
 
   var delegatesWithStop = simpleDelegates.set('shouldStopSimulation', shouldStopSimulation);
   var delegates = delegatesWithStop.set('getFitnessOfChromosome', getFitnessOfChromosome);
-  var experiment = new Charles.Experiment(options, delegates.toJS());
+  var experiment = new Charles.Experiment({}, population, delegates.toJS());
   experiment.init()
     .then(experiment.run.bind(experiment))
     .then(function checkResults() {
       t.ok(getFitnessOfChromosome.calledTwice);
-      var members = experiment.populuation.getMembers();
+      var members = experiment.population.getMembers();
       members.forEach(function checkFitness(fitness) {
         t.equal(fitness, 1);
       });
@@ -111,6 +90,5 @@ test('It should calculate new fitness', function testCalcFitness(t) {
     });
 });
 
-// TODO: Test cull by seeding with [1..100] fitness and check number culled
 // TODO: Test breed by culling all and checking breedFunc called `pop` times
 // TODO: Test crossover by pop of 1 with (x,y) becomes (y,x)

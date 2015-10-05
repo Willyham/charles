@@ -25,7 +25,7 @@
     "uber-standard": "^4.0.1"
   },
   "scripts": {
-    "cover": "istanbul cover --report cobertura --print detail tape -- test/index.js",
+    "cover": "istanbul cover --report cobertura --print detail tape -- test/index.tap.js test/**/*.tap.js",
     "lint": "uber-standard",
     "test": "npm run lint -s && npm run cover -s",
     "view-cover": "istanbul report html && opn ./coverage/index.html"
