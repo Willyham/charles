@@ -77,19 +77,17 @@ test('It should cull the correct number of chromosomes', function testCull(t) {
     });
 });
 
-// TODO: Skipped because map fundamental fail
-test.skip('It should fill remaining chromosomes by breeding', function testBreed(t) {
-  t.plan(1);
+test('It should fill remaining chromosomes by breeding', function testBreed(t) {
+  t.plan(2);
 
   var population = new Charles.Population({
     populationSize: 10
   });
-  var Chromosome = simpleDelegates.get('Chromosome');
-  population.addMember(new Chromosome({
+  population.addMember(new Charles.Chromosome({
     a: 1,
     b: 2
   }));
-  population.addMember(new Chromosome({
+  population.addMember(new Charles.Chromosome({
     a: 2,
     b: 3
   }));

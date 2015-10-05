@@ -4,6 +4,7 @@ var Immutable = require('immutable');
 var P = require('bluebird');
 var R = require('ramda');
 
+/* istanbul ignore next */
 function asyncNoop() {
   var callback = arguments[arguments.length - 1];
   callback(null);
