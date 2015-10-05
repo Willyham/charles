@@ -10,6 +10,9 @@ var SimpleChromosome = Charles.Chromosome({
 });
 
 var simpleDelegates = Immutable.fromJS({
+
+  Chromosome: SimpleChromosome,
+
   createRandomChromosome: function createChromosome(callback) {
     callback(null, new SimpleChromosome({
       a: Math.random(),
