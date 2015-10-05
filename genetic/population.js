@@ -1,7 +1,8 @@
 'use strict';
 
-var Immutable = require('immutable');
+var R = require('ramda');
 var P = require('bluebird');
+var Immutable = require('immutable');
 var Stats = require('fast-stats').Stats;
 
 function Population(options) {
@@ -31,6 +32,19 @@ Population.prototype.calculateFitness = function calculateFitness(fitnessFunc) {
   }
 
   return P.all(this.members.map(calcFitness).toArray());
+};
+
+Population.prototype.seed = function seed(seedFunc) {
+  var self = this;
+  var getChromosomePromises = Immutable.Range(0, Infinity)
+    .map(R.nAry(0, seedFunc))
+    .takeUntil(function isFullPopulation(chromosome, iteration) {
+      return iteration === self.options.populationSize;
+    })
+    .toArray();
+
+  var addAllToPopulation = R.forEach(this.addMember.bind(this));
+  return P.all(getChromosomePromises).then(addAllToPopulation);
 };
 
 Population.prototype.cull = function cull() {
