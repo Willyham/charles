@@ -45,7 +45,7 @@ Population.prototype.cull = function cull() {
   var popStats = new Stats().push(allFitness);
   var percentile = popStats.percentile(this.options.cullPercentage);
   this.members = this.members.filter(function isStrongEnough(chromosome) {
-    return chromosome.fitness >= percentile;
+    return chromosome.fitness > percentile;
   });
   return P.resolve();
 };
@@ -78,6 +78,10 @@ Population.prototype.getMembers = function getMembers() {
 Population.prototype.getRandomChromosome = function getRandomChromosome() {
   var index = Math.floor(Math.random() * this.members.size);
   return this.members.skip(index).take(1).get(0);
+};
+
+Population.prototype.getFittestChromosome = function getFittestChromosome() {
+  return this.members.maxBy(R.prop('fitness'));
 };
 
 Population.prototype.incrementGeneration = function increaseGeneration() {

@@ -55,10 +55,7 @@ Experiment.prototype.run = function run(callback) {
 
   var self = this;
   function runLoop() {
-    var generation = self.population.generation;
-    var members = self.population.getMembers();
-
-    return self.delegates.shouldStopSimulation(generation, members)
+    return self.delegates.shouldStopSimulation(self.population)
       .then(function onStopResult(shouldStop) {
         if (shouldStop) {
           return P.resolve().nodeify(callback);

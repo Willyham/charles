@@ -4,6 +4,7 @@ var sinon = require('sinon');
 
 var Charles = require('../');
 var simpleDelegates = require('./delegates/simple');
+var maxProductDelegates = require('./delegates/maxProduct');
 
 var sandbox = sinon.sandbox.create();
 
@@ -16,8 +17,8 @@ test('It should not run before init', function testNoInit(t) {
 
 test('It should stop immediately', function testStop(t) {
   t.plan(2);
-  var shouldStopSimulation = sandbox.spy(function stopSim(generation, population, callback) {
-    callback(null, generation === 0);
+  var shouldStopSimulation = sandbox.spy(function stopSim(population, callback) {
+    callback(null, population.generation === 0);
   });
 
   var delegates = simpleDelegates.set('shouldStopSimulation', shouldStopSimulation);
@@ -34,8 +35,8 @@ test('It should stop immediately', function testStop(t) {
 
 test('It should run for N generations', function testGenerationLoop(t) {
   t.plan(1);
-  var shouldStopSimulation = sandbox.spy(function stopSim(generation, population, callback) {
-    callback(null, generation === 2);
+  var shouldStopSimulation = sandbox.spy(function stopSim(population, callback) {
+    callback(null, population.generation === 2);
   });
 
   var delegates = simpleDelegates.set('shouldStopSimulation', shouldStopSimulation);
@@ -52,7 +53,7 @@ test('It should run for N generations', function testGenerationLoop(t) {
 test('It should calculate new fitness', function testCalcFitness(t) {
   t.plan(3);
   var shouldStopSimulation = function stopSim(generation, population, callback) {
-    callback(null, generation === 1);
+    callback(null, population.generation === 1);
   };
   var getFitnessOfChromosome = sandbox.spy(function getFitness(chromosome, callback) {
     callback(null, 1);
@@ -77,5 +78,18 @@ test('It should calculate new fitness', function testCalcFitness(t) {
     });
 });
 
-// TODO: Test breed by culling all and checking breedFunc called `pop` times
+// Not quite there yet
+test.skip('It should run a complete experiment', function testFull(t) {
+  var population = new Charles.Population({
+    populationSize: 100
+  });
+  var experiment = new Charles.Experiment({}, population, maxProductDelegates.toJS());
+  experiment.init()
+    .then(experiment.run.bind(experiment))
+    .then(function checkResults() {
+      t.end();
+    });
+});
+
+
 // TODO: Test crossover by pop of 1 with (x,y) becomes (y,x)
