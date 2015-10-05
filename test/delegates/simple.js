@@ -4,26 +4,19 @@ var Immutable = require('immutable');
 
 var Charles = require('../../index');
 
-var SimpleChromosome = Charles.Chromosome({
-  a: null,
-  b: null
-});
-
 var simpleDelegates = Immutable.fromJS({
 
-  Chromosome: SimpleChromosome,
-
   createRandomChromosome: function createChromosome(callback) {
-    callback(null, new SimpleChromosome({
+    callback(null, new Charles.Chromosome({
       a: Math.random(),
       b: Math.random()
     }));
   },
 
   crossoverChromosomes: function crossoverChromosome(parent1, parent2, callback) {
-    callback(null, new SimpleChromosome({
-      a: parent1.get('a'),
-      b: parent2.get('b')
+    callback(null, new Charles.Chromosome({
+      a: parent1.genes.get('a'),
+      b: parent2.genes.get('b')
     }));
   },
 

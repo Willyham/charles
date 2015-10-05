@@ -70,8 +70,8 @@ test('It should calculate new fitness', function testCalcFitness(t) {
     .then(function checkResults() {
       t.ok(getFitnessOfChromosome.calledTwice);
       var members = experiment.population.getMembers();
-      members.forEach(function checkFitness(fitness) {
-        t.equal(fitness, 1);
+      members.forEach(function checkFitness(chromosome) {
+        t.equal(chromosome.fitness, 1);
       });
       sandbox.restore();
     });

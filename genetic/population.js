@@ -12,22 +12,15 @@ function Population(options) {
   });
   this.options = new Options(options);
   this.generation = 0;
-  // Members is a map of chromosome to fitness
-  this.members = Immutable.Map();
-}
-
-function getRandomKeyFromMap(map) {
-  var size = map.size;
-  var index = Math.floor(Math.random() * size);
-  return map.skip(index).take(1).keySeq().first();
+  // Members is a list of chromosomes
+  this.members = Immutable.List();
 }
 
 Population.prototype.calculateFitness = function calculateFitness(fitnessFunc) {
-  var self = this;
-  function calcFitness(priorFitness, chromosome) {
+  function calcFitness(chromosome) {
     return fitnessFunc(chromosome)
       .then(function setFitness(fitness) {
-        self.setFitnessForMember(chromosome, fitness);
+        chromosome.setFitness(fitness);
       });
   }
 
@@ -48,11 +41,11 @@ Population.prototype.seed = function seed(seedFunc) {
 };
 
 Population.prototype.cull = function cull() {
-  var allFitness = this.members.valueSeq().toArray();
+  var allFitness = this.members.toArray().map(R.prop('fitness'));
   var popStats = new Stats().push(allFitness);
   var percentile = popStats.percentile(this.options.cullPercentage);
-  this.members = this.members.filter(function isStrongEnough(value) {
-    return value >= percentile;
+  this.members = this.members.filter(function isStrongEnough(chromosome) {
+    return chromosome.fitness >= percentile;
   });
   return P.resolve();
 };
@@ -61,13 +54,12 @@ Population.prototype.fillByBreeding = function fillByBreeding(breedFunc) {
   if (this.members.size >= this.options.populationSize) {
     return P.resolve(this.members);
   }
-  var parent1 = getRandomKeyFromMap(this.members);
-  var parent2 = getRandomKeyFromMap(this.members);
+  var parent1 = this.getRandomChromosome();
+  var parent2 = this.getRandomChromosome();
   var self = this;
   return breedFunc(parent1, parent2)
     .then(function addChild(child) {
-      // Add child with fitness of 0, it'll be recalculated on next generation
-      self.members = self.members.set(child, 0);
+      self.addMember(child);
     })
     .then(function callRecursive() {
       // Keep filling until we reach the right population size
@@ -76,15 +68,16 @@ Population.prototype.fillByBreeding = function fillByBreeding(breedFunc) {
 };
 
 Population.prototype.addMember = function addMember(chromosome) {
-  this.members = this.members.set(chromosome, 0);
-};
-
-Population.prototype.setFitnessForMember = function setFitnessForMember(chromosome, fitness) {
-  this.members = this.members.set(chromosome, fitness);
+  this.members = this.members.push(chromosome);
 };
 
 Population.prototype.getMembers = function getMembers() {
   return this.members;
+};
+
+Population.prototype.getRandomChromosome = function getRandomChromosome() {
+  var index = Math.floor(Math.random() * this.members.size);
+  return this.members.skip(index).take(1).get(0);
 };
 
 Population.prototype.incrementGeneration = function increaseGeneration() {

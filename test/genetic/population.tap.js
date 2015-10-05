@@ -31,8 +31,8 @@ test('It should calculate fitness for all chromosomes', function testFitness(t) 
   };
   var fitnessFunc = P.promisify(getFitnessOfChromosome);
 
-  var sumFunc = function sum(memo, value) {
-    memo = memo + value;
+  var sumFunc = function sum(memo, chromosome) {
+    memo = memo + chromosome.fitness;
     return memo;
   };
 
