@@ -7,19 +7,6 @@ var simpleDelegates = require('./delegates/simple');
 
 var sandbox = sinon.sandbox.create();
 
-test('It should create a new population with the correct size', function createPop(t) {
-  t.plan(1);
-
-  var population = new Charles.Population({
-    populationSize: 10
-  });
-
-  var experiment = new Charles.Experiment({}, population, simpleDelegates.toJS());
-  experiment.init().then(function checkResults() {
-    t.equal(experiment.population.getMembers().count(), 10);
-  });
-});
-
 test('It should not run before init', function testNoInit(t) {
   t.plan(1);
   var population = new Charles.Population();
