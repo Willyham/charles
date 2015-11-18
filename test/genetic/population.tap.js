@@ -93,7 +93,8 @@ test('It should cull the correct number of chromosomes when minimizing', functio
 
   var population = new Charles.Population({
     populationSize: 100,
-    cullPercentage: 80
+    cullPercentage: 80,
+    minimizeFitness: true
   });
 
   population.seed(createChromosome)
@@ -101,9 +102,7 @@ test('It should cull the correct number of chromosomes when minimizing', functio
       return population.calculateFitness(getFitnessOfChromosome);
     })
     .then(function doCull() {
-      population.cull({
-        shouldMinimize: true
-      });
+      population.cull();
     })
     .then(function testMembers() {
       var members = population.getMembers();

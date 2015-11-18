@@ -96,12 +96,13 @@ test('It should run a complete experiment', function testFull(t) {
     });
 });
 
-test.skip('It should run a minimizing experiment', function testFull(t) {
+test.only('It should run a minimizing experiment', function testFull(t) {
   var population = new Charles.Population({
     populationSize: 10,
-    cullPercentage: 70
+    cullPercentage: 70,
+    minimizeFitness: true
   });
-  var experiment = new Charles.Experiment({shouldMinimize: true}, population, stringMatchDelegates.toJS());
+  var experiment = new Charles.Experiment({}, population, stringMatchDelegates.toJS());
   experiment.init()
     .then(experiment.run.bind(experiment))
     .then(function checkResults() {

@@ -8,12 +8,21 @@ var Stats = require('fast-stats').Stats;
 function Population(options) {
   var Options = Immutable.Record({
     populationSize: 100,
-    cullPercentage: 10
+    cullPercentage: 10,
+    minimizeFitness: false
   });
   this.options = new Options(options);
   this.generation = 0;
   // Members is a list of chromosomes
   this.members = Immutable.List();
+  this.compareChromosomes = R.partial(compareChromosomes, this.options);
+}
+
+var compareChromosomes = function compareChromosomes(options, a, b) {
+  if (options.minimizeFitness) {
+    return a > b;
+  }
+  return a < b;
 }
 
 Population.prototype.calculateFitness = function calculateFitness(fitnessFunc) {
@@ -42,19 +51,8 @@ Population.prototype.seed = function seed(seedFunc) {
     .then(addAllToPopulation);
 };
 
-Population.prototype.cull = function cull(options) {
-  options = options || {};
-  options.shouldMinimize = options.shouldMinimize === 'undefined' ? false: options.shouldMinimize;
-
-  // Sort the members
-  var getFitness = R.prop('fitness');
-  var compatator = function(a, b) {
-    if (options.shouldMinimize) {
-      return a > b;
-    }
-    return a < b;
-  }
-  var sortedMemebers = this.members.sortBy(R.prop('fitness'), compatator);
+Population.prototype.cull = function cull() {
+  var sortedMemebers = this.members.sortBy(R.prop('fitness'), this.compareChromosomes);
 
   // Find the number to take.
   var cullDecimal = this.options.cullPercentage / 100;
@@ -69,6 +67,7 @@ Population.prototype.fillByBreeding = function fillByBreeding(breedFunc) {
   if (this.members.size >= this.options.populationSize) {
     return P.resolve(this.members);
   }
+  // TODO: Members just bread will go back into list for selection!
   var parent1 = this.getRandomChromosome();
   var parent2 = this.getRandomChromosome();
   var self = this;
