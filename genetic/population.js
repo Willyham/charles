@@ -21,6 +21,7 @@ Population.prototype.calculateFitness = function calculateFitness(fitnessFunc) {
     return fitnessFunc(chromosome)
       .then(function setFitness(fitness) {
         chromosome.setFitness(fitness);
+        return chromosome;
       });
   }
 
@@ -41,19 +42,21 @@ Population.prototype.seed = function seed(seedFunc) {
     .then(addAllToPopulation);
 };
 
-Population.prototype.cull = function cull(shouldMinimize) {
+Population.prototype.cull = function cull(options) {
+  options = options || {};
+  options.shouldMinimize = options.shouldMinimize === 'undefined' ? false: options.shouldMinimize;
+
   var allFitness = this.members.toArray().map(R.prop('fitness'));
   var popStats = new Stats().push(allFitness);
-  var percentageToRetain = 100 - this.options.cullPercentage;
 
   // Get the top and bottom X percentile
-  var valueAtTopPercentile = popStats.percentile(percentageToRetain);
-  var valueAtBottomPercentile = popStats.percentile(100 - percentageToRetain);
+  var valueAtTopPercentile = popStats.percentile(this.options.cullPercentage);
+  var valueAtBottomPercentile = popStats.percentile(100 - this.options.cullPercentage);
 
   var newMembers = this.members.filter(function isStrongEnough(chromosome) {
     // If we're minimizing, take only those below the bottom percentile
-    if (shouldMinimize) {
-      return chromosome.fitness <= valueAtBottomPercentile;
+    if (options.shouldMinimize) {
+      return chromosome.fitness < valueAtBottomPercentile;
     }
     return chromosome.fitness >= valueAtTopPercentile;
   });

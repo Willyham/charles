@@ -54,7 +54,7 @@ test('It should calculate fitness for all chromosomes', function testFitness(t) 
 });
 
 test('It should cull the correct number of chromosomes', function testCull(t) {
-  t.plan(1);
+  t.plan(3);
 
   var fitness = 0;
   var getFitnessOfChromosome = function getFitnessOfChromosome(chromosome) {
@@ -64,17 +64,52 @@ test('It should cull the correct number of chromosomes', function testCull(t) {
 
   var population = new Charles.Population({
     populationSize: 100,
-    cullPercentage: 50
+    cullPercentage: 80
   });
 
   population.seed(createChromosome)
     .then(function calculateFitness() {
       return population.calculateFitness(getFitnessOfChromosome);
     })
-    .then(population.cull.bind(population))
+    .then(function doCull() {
+      population.cull();
+    })
     .then(function testMembers() {
       var members = population.getMembers();
-      t.equal(members.size, 50);
+      t.equal(members.size, 20);
+      t.equal(members.first().fitness, 81);
+      t.equal(members.last().fitness, 100);
+    });
+});
+
+test('It should cull the correct number of chromosomes when minimizing', function testCull(t) {
+  t.plan(3);
+
+  var fitness = 0;
+  var getFitnessOfChromosome = function getFitnessOfChromosome(chromosome) {
+    fitness++;
+    return P.resolve(fitness);
+  };
+
+  var population = new Charles.Population({
+    populationSize: 100,
+    cullPercentage: 80
+  });
+
+  population.seed(createChromosome)
+    .then(function calculateFitness() {
+      return population.calculateFitness(getFitnessOfChromosome);
+    })
+    .then(function doCull() {
+      population.cull({
+        shouldMinimize: true
+      });
+    })
+    .then(function testMembers() {
+      var members = population.getMembers();
+      t.equal(members.size, 20);
+      t.equal(members.first().fitness, 1);
+      t.equal(members.last().fitness, 20);
     });
 });
 
