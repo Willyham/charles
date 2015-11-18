@@ -46,24 +46,21 @@ Population.prototype.cull = function cull(options) {
   options = options || {};
   options.shouldMinimize = options.shouldMinimize === 'undefined' ? false: options.shouldMinimize;
 
-  var allFitness = this.members.toArray().map(R.prop('fitness'));
-  var popStats = new Stats().push(allFitness);
-
-  // Get the top and bottom X percentile
-  var valueAtTopPercentile = popStats.percentile(this.options.cullPercentage);
-  var valueAtBottomPercentile = popStats.percentile(100 - this.options.cullPercentage);
-
-  var newMembers = this.members.filter(function isStrongEnough(chromosome) {
-    // If we're minimizing, take only those below the bottom percentile
+  // Sort the members
+  var getFitness = R.prop('fitness');
+  var compatator = function(a, b) {
     if (options.shouldMinimize) {
-      return chromosome.fitness < valueAtBottomPercentile;
+      return a > b;
     }
-    return chromosome.fitness >= valueAtTopPercentile;
-  });
-  if (newMembers.size <= 2) {
-    // TODO: What should we do here? Need to ensure there's enough to breed
-    return P.resolve();
+    return a < b;
   }
+  var sortedMemebers = this.members.sortBy(R.prop('fitness'), compatator);
+
+  // Find the number to take.
+  var cullDecimal = this.options.cullPercentage / 100;
+  var numberToTake = Math.round(this.members.size * (1 - cullDecimal));
+  var newMembers = sortedMemebers.take(numberToTake);
+
   this.members = newMembers;
   return P.resolve();
 };
