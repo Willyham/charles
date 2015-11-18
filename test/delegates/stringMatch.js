@@ -30,7 +30,6 @@ var stringMatch = Immutable.fromJS({
     var first = value1.substring(0, pivot);
     var second = value2.substring(pivot, value1.length);
 
-    console.log('Breed', value1, value2, first + second);
     callback(null, new Charles.Chromosome({
       value: first + second
     }));
@@ -43,7 +42,6 @@ var stringMatch = Immutable.fromJS({
 
   shouldStopSimulation: function shouldStopSimulation(population, callback) {
     var fittest = population.getFittestChromosome();
-    console.log(fittest.genes.get('value'));
     callback(null, fittest.genes.get('value') === target);
   }
 });

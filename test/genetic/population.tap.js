@@ -93,8 +93,9 @@ test('It should fill remaining chromosomes by breeding', function testBreed(t) {
   }));
 
   var breedFunc = sandbox.spy(P.promisify(simpleDelegates.get('crossoverChromosomes')));
+  var fitnessFunc = P.promisify(simpleDelegates.get('getFitnessOfChromosome'));
 
-  population.fillByBreeding(breedFunc)
+  population.fillByBreeding(breedFunc, fitnessFunc)
     .then(function testMembers() {
       t.equal(breedFunc.getCalls().length, 8);
       t.equal(population.getMembers().size, 10);

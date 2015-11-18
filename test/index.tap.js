@@ -52,15 +52,19 @@ test('It should run for N generations', function testGenerationLoop(t) {
 
 test('It should calculate new fitness', function testCalcFitness(t) {
   t.plan(3);
-  var shouldStopSimulation = function stopSim(generation, population, callback) {
+  var shouldStopSimulation = function stopSim(population, callback) {
     callback(null, population.generation === 1);
   };
+
+  // Increase make population with fitness 1 - 10
+  var fitness = 1;
   var getFitnessOfChromosome = sandbox.spy(function getFitness(chromosome, callback) {
-    callback(null, 1);
+    fitness++;
+    callback(null, fitness);
   });
 
   var population = new Charles.Population({
-    populationSize: 2
+    populationSize: 10
   });
 
   var delegatesWithStop = simpleDelegates.set('shouldStopSimulation', shouldStopSimulation);
@@ -69,17 +73,17 @@ test('It should calculate new fitness', function testCalcFitness(t) {
   experiment.init()
     .then(experiment.run.bind(experiment))
     .then(function checkResults() {
-      t.ok(getFitnessOfChromosome.calledTwice);
+      t.ok(getFitnessOfChromosome.called);
       var members = experiment.population.getMembers();
-      members.forEach(function checkFitness(chromosome) {
-        t.equal(chromosome.fitness, 1);
-      });
+      t.equal(members.size, 10);
+      t.true(members.valueSeq().every(function hasValue(member) {
+        return typeof member.fitness === 'number';
+      }));
       sandbox.restore();
     });
 });
 
-// Not quite there yet
-test.skip('It should run a complete experiment', function testFull(t) {
+test('It should run a complete experiment', function testFull(t) {
   var population = new Charles.Population({
     populationSize: 100
   });
@@ -90,6 +94,5 @@ test.skip('It should run a complete experiment', function testFull(t) {
       t.end();
     });
 });
-
 
 // TODO: Test crossover by pop of 1 with (x,y) becomes (y,x)

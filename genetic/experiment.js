@@ -50,8 +50,11 @@ Experiment.prototype.run = function run(callback) {
   if (!this.isInitialized) {
     throw new Error('Must initialize before running');
   }
+  var crossoverFunc = this.delegates.crossoverChromosomes;
+  var fitnessFunc = this.delegates.getFitnessOfChromosome;
+
   var cull = this.population.cull.bind(this.population);
-  var breed = this.population.fillByBreeding.bind(this.population, this.delegates.crossoverChromosomes);
+  var breed = this.population.fillByBreeding.bind(this.population, crossoverFunc, fitnessFunc);
 
   var self = this;
   function runLoop() {
@@ -63,7 +66,7 @@ Experiment.prototype.run = function run(callback) {
 
         // Do evolutionary work here
         self.population.incrementGeneration();
-        return self.population.calculateFitness(self.delegates.getFitnessOfChromosome)
+        return self.population.calculateFitness(fitnessFunc)
           .then(cull)
           .then(breed)
           .then(runLoop);

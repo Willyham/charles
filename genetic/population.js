@@ -44,13 +44,18 @@ Population.prototype.cull = function cull() {
   var allFitness = this.members.toArray().map(R.prop('fitness'));
   var popStats = new Stats().push(allFitness);
   var percentile = popStats.percentile(this.options.cullPercentage);
-  this.members = this.members.filter(function isStrongEnough(chromosome) {
+  var newMembers = this.members.filter(function isStrongEnough(chromosome) {
     return chromosome.fitness > percentile;
   });
+  if (newMembers.size <= 2) {
+    // TODO: What should we do here? Need to ensure there's enough to breed
+    return P.resolve();
+  }
+  this.members = newMembers;
   return P.resolve();
 };
 
-Population.prototype.fillByBreeding = function fillByBreeding(breedFunc) {
+Population.prototype.fillByBreeding = function fillByBreeding(breedFunc, fitnessFunc) {
   if (this.members.size >= this.options.populationSize) {
     return P.resolve(this.members);
   }
@@ -59,11 +64,14 @@ Population.prototype.fillByBreeding = function fillByBreeding(breedFunc) {
   var self = this;
   return breedFunc(parent1, parent2)
     .then(function addChild(child) {
-      self.addMember(child);
+      return fitnessFunc(child).then(function onFitness(fitness) {
+        child.setFitness(fitness);
+        self.addMember(child);
+      });
     })
     .then(function callRecursive() {
       // Keep filling until we reach the right population size
-      return self.fillByBreeding(breedFunc);
+      return self.fillByBreeding(breedFunc, fitnessFunc);
     });
 };
 

@@ -42,8 +42,11 @@ var maxProduct = Immutable.fromJS({
   },
 
   shouldStopSimulation: function shouldStopSimulation(population, callback) {
+    if (population.generation === 100) {
+      callback(null, true);
+      return;
+    }
     var fittest = population.getFittestChromosome();
-    console.log(fittest);
     callback(null, fittest.fitness === target);
   }
 });
