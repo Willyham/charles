@@ -18,6 +18,15 @@ function Population(options) {
   this.compareChromosomes = R.partial(compareChromosomes, this.options);
 }
 
+var getFitness = R.prop('fitness');
+
+/**
+ * Define a comparator for chromosomes depending on whether we minimizeFitness or not
+ * @param  {Object} options minimizeFitness
+ * @param  {Number} a fitness for a
+ * @param  {Number} b fitness for b
+ * @return {Number} sort order
+ */
 var compareChromosomes = function compareChromosomes(options, a, b) {
   if (a === b) {
     return 0;
@@ -55,7 +64,7 @@ Population.prototype.seed = function seed(seedFunc) {
 };
 
 Population.prototype.cull = function cull() {
-  var sortedMemebers = this.members.sortBy(R.prop('fitness'), this.compareChromosomes);
+  var sortedMemebers = this.members.sortBy(getFitness, this.compareChromosomes);
 
   // Find the number to take.
   var cullDecimal = this.options.cullPercentage / 100;
@@ -96,7 +105,11 @@ Population.prototype.getRandomChromosome = function getRandomChromosome() {
 };
 
 Population.prototype.getFittestChromosome = function getFittestChromosome() {
-  return this.members.maxBy(R.prop('fitness'));
+  var nonNullMembers = this.members.filterNot(R.compose(R.isNil, getFitness));
+  if (this.options.minimizeFitness) {
+    return nonNullMembers.minBy(getFitness);
+  }
+  return nonNullMembers.maxBy(getFitness);
 };
 
 Population.prototype.incrementGeneration = function increaseGeneration() {

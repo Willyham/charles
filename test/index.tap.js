@@ -4,7 +4,8 @@ var sinon = require('sinon');
 
 var Charles = require('../');
 var simpleDelegates = require('./delegates/simple');
-var maxProductDelegates = require('./delegates/maxProduct');
+var maxProductDelegates = require('./delegates/product').maxProduct;
+var minProductDelegates = require('./delegates/product').minProduct;
 var stringMatchDelegates = require('./delegates/stringMatch');
 
 var sandbox = sinon.sandbox.create();
@@ -96,13 +97,12 @@ test('It should run a complete experiment', function testFull(t) {
     });
 });
 
-test.skip('It should run a minimizing experiment', function testFull(t) {
+test.only('It should run a minimizing experiment', function testFull(t) {
   var population = new Charles.Population({
-    populationSize: 10,
-    cullPercentage: 70,
+    populationSize: 100,
     minimizeFitness: true
   });
-  var experiment = new Charles.Experiment({}, population, stringMatchDelegates.toJS());
+  var experiment = new Charles.Experiment({}, population, minProductDelegates.toJS());
   experiment.init()
     .then(experiment.run.bind(experiment))
     .then(function checkResults() {
