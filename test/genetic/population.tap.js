@@ -77,8 +77,8 @@ test('It should cull the correct number of chromosomes', function testCull(t) {
     .then(function testMembers() {
       var members = population.getMembers();
       t.equal(members.size, 20);
-      t.equal(members.first().fitness, 81);
-      t.equal(members.last().fitness, 100);
+      t.equal(members.first().fitness, 100);
+      t.equal(members.last().fitness, 81);
     });
 });
 

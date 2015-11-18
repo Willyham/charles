@@ -96,7 +96,7 @@ test('It should run a complete experiment', function testFull(t) {
     });
 });
 
-test.only('It should run a minimizing experiment', function testFull(t) {
+test.skip('It should run a minimizing experiment', function testFull(t) {
   var population = new Charles.Population({
     populationSize: 10,
     cullPercentage: 70,
