@@ -12,6 +12,7 @@ function asyncNoop() {
 
 function Experiment(options, population, delegates) {
   var Options = Immutable.Record({
+    shouldMinimize: false,
     mutationProbability: 0.1,
     crossoverProbability: 0.5
   });
@@ -41,7 +42,11 @@ Experiment.prototype.setInitialized = function setInitialized(value) {
 
 Experiment.prototype.init = function init(callback) {
   var setIsInitialized = R.partial(this.setInitialized.bind(this), true);
+  var fitnessFunc = this.delegates.getFitnessOfChromosome;
+  var calculateFitness = this.population.calculateFitness.bind(this.population, fitnessFunc);
+
   return this.population.seed(this.delegates.createRandomChromosome)
+    .then(calculateFitness)
     .then(setIsInitialized)
     .nodeify(callback);
 };
@@ -53,7 +58,7 @@ Experiment.prototype.run = function run(callback) {
   var crossoverFunc = this.delegates.crossoverChromosomes;
   var fitnessFunc = this.delegates.getFitnessOfChromosome;
 
-  var cull = this.population.cull.bind(this.population);
+  var cull = this.population.cull.bind(this.population, this.options.shouldMinimize);
   var breed = this.population.fillByBreeding.bind(this.population, crossoverFunc, fitnessFunc);
 
   var self = this;

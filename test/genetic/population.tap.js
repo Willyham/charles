@@ -7,6 +7,10 @@ var sinon = require('sinon');
 var Charles = require('../../');
 var simpleDelegates = require('../delegates/simple');
 
+var createChromosome = P.promisify(simpleDelegates.get('createRandomChromosome'));
+var crossoverChromosome = P.promisify(simpleDelegates.get('crossoverChromosomes'));
+var getFitness = P.promisify(simpleDelegates.get('getFitnessOfChromosome'));
+
 var sandbox = sinon.sandbox.create();
 
 test('It should seed a new population with the correct size', function createPop(t) {
@@ -16,7 +20,6 @@ test('It should seed a new population with the correct size', function createPop
     populationSize: 10
   });
 
-  var createChromosome = P.promisify(simpleDelegates.get('createRandomChromosome'));
   population.seed(createChromosome)
     .then(function calculateFitness() {
       t.equal(population.getMembers().count(), 10);
@@ -40,7 +43,6 @@ test('It should calculate fitness for all chromosomes', function testFitness(t) 
     populationSize: 10
   });
 
-  var createChromosome = P.promisify(simpleDelegates.get('createRandomChromosome'));
   population.seed(createChromosome)
     .then(function calculateFitness() {
       return population.calculateFitness(fitnessFunc);
@@ -66,14 +68,14 @@ test('It should cull the correct number of chromosomes', function testCull(t) {
     cullPercentage: 50
   });
 
-  var createChromosome = P.promisify(simpleDelegates.get('createRandomChromosome'));
   population.seed(createChromosome)
     .then(function calculateFitness() {
       return population.calculateFitness(getFitnessOfChromosome);
     })
     .then(population.cull.bind(population))
     .then(function testMembers() {
-      t.equal(population.getMembers().size, 50);
+      var members = population.getMembers();
+      t.equal(members.size, 50);
     });
 });
 
@@ -92,12 +94,12 @@ test('It should fill remaining chromosomes by breeding', function testBreed(t) {
     b: 3
   }));
 
-  var breedFunc = sandbox.spy(P.promisify(simpleDelegates.get('crossoverChromosomes')));
-  var fitnessFunc = P.promisify(simpleDelegates.get('getFitnessOfChromosome'));
+  var breedFunc = sandbox.spy(crossoverChromosome);
 
-  population.fillByBreeding(breedFunc, fitnessFunc)
+  population.fillByBreeding(breedFunc, getFitness)
     .then(function testMembers() {
       t.equal(breedFunc.getCalls().length, 8);
       t.equal(population.getMembers().size, 10);
+      sandbox.restore();
     });
 });

@@ -5,6 +5,7 @@ var sinon = require('sinon');
 var Charles = require('../');
 var simpleDelegates = require('./delegates/simple');
 var maxProductDelegates = require('./delegates/maxProduct');
+var stringMatchDelegates = require('./delegates/stringMatch');
 
 var sandbox = sinon.sandbox.create();
 
@@ -95,4 +96,14 @@ test('It should run a complete experiment', function testFull(t) {
     });
 });
 
-// TODO: Test crossover by pop of 1 with (x,y) becomes (y,x)
+test.skip('It should run a minimizing experiment', function testFull(t) {
+  var population = new Charles.Population({
+    populationSize: 50
+  });
+  var experiment = new Charles.Experiment({shouldMinimize: true}, population, stringMatchDelegates.toJS());
+  experiment.init()
+    .then(experiment.run.bind(experiment))
+    .then(function checkResults() {
+      t.end();
+    });
+});

@@ -37,15 +37,26 @@ Population.prototype.seed = function seed(seedFunc) {
     .toArray();
 
   var addAllToPopulation = R.forEach(this.addMember.bind(this));
-  return P.all(getChromosomePromises).then(addAllToPopulation);
+  return P.all(getChromosomePromises)
+    .then(addAllToPopulation);
 };
 
-Population.prototype.cull = function cull() {
+Population.prototype.cull = function cull(shouldMinimize) {
+  debugger;
   var allFitness = this.members.toArray().map(R.prop('fitness'));
   var popStats = new Stats().push(allFitness);
-  var percentile = popStats.percentile(this.options.cullPercentage);
+  var percentageToRetain = 100 - this.options.cullPercentage;
+
+  // Get the top and bottom X percentile
+  var valueAtTopPercentile = popStats.percentile(percentageToRetain);
+  var valueAtBottomPercentile = popStats.percentile(100 - percentageToRetain);
+
   var newMembers = this.members.filter(function isStrongEnough(chromosome) {
-    return chromosome.fitness > percentile;
+    // If we're minimizing, take only those below the bottom percentile
+    if (shouldMinimize) {
+      return chromosome.fitness <= valueAtBottomPercentile;
+    }
+    return chromosome.fitness >= valueAtTopPercentile;
   });
   if (newMembers.size <= 2) {
     // TODO: What should we do here? Need to ensure there's enough to breed
