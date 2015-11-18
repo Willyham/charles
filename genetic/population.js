@@ -3,22 +3,6 @@
 var R = require('ramda');
 var P = require('bluebird');
 var Immutable = require('immutable');
-var Stats = require('fast-stats').Stats;
-
-function Population(options) {
-  var Options = Immutable.Record({
-    populationSize: 100,
-    cullPercentage: 10,
-    minimizeFitness: false
-  });
-  this.options = new Options(options);
-  this.generation = 0;
-  // Members is a list of chromosomes
-  this.members = Immutable.List();
-  this.compareChromosomes = R.partial(compareChromosomes, this.options);
-}
-
-var getFitness = R.prop('fitness');
 
 /**
  * Define a comparator for chromosomes depending on whether we minimizeFitness or not
@@ -35,7 +19,22 @@ var compareChromosomes = function compareChromosomes(options, a, b) {
     return a > b ? 1 : -1;
   }
   return a < b ? 1 : -1;
+};
+
+function Population(options) {
+  var Options = Immutable.Record({
+    populationSize: 100,
+    cullPercentage: 10,
+    minimizeFitness: false
+  });
+  this.options = new Options(options);
+  this.generation = 0;
+  // Members is a list of chromosomes
+  this.members = Immutable.List();
+  this.compareChromosomes = R.partial(compareChromosomes, this.options);
 }
+
+var getFitness = R.prop('fitness');
 
 Population.prototype.calculateFitness = function calculateFitness(fitnessFunc) {
   function calcFitness(chromosome) {

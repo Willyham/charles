@@ -68,7 +68,8 @@ Experiment.prototype.run = function run(callback) {
     return self.delegates.shouldStopSimulation(self.population)
       .then(function onStopResult(shouldStop) {
         if (shouldStop) {
-          return P.resolve().nodeify(callback);
+          // One last fitness calc in case we're stopped at a generation condition
+          return self.population.calculateFitness(fitnessFunc).nodeify(callback);
         }
 
         // Do evolutionary work here
