@@ -59,7 +59,7 @@ Experiment.prototype.run = function run(callback) {
   var fitnessFunc = this.delegates.getFitnessOfChromosome;
 
   var cull = this.population.cull.bind(this.population, this.options.shouldMinimize);
-  var breed = this.population.fillByBreeding.bind(this.population, crossoverFunc, fitnessFunc);
+  var breed = this.population.fillByBreeding.bind(this.population, crossoverFunc);
 
   var self = this;
   function runLoop() {

@@ -42,7 +42,6 @@ Population.prototype.seed = function seed(seedFunc) {
 };
 
 Population.prototype.cull = function cull(shouldMinimize) {
-  debugger;
   var allFitness = this.members.toArray().map(R.prop('fitness'));
   var popStats = new Stats().push(allFitness);
   var percentageToRetain = 100 - this.options.cullPercentage;
@@ -66,7 +65,7 @@ Population.prototype.cull = function cull(shouldMinimize) {
   return P.resolve();
 };
 
-Population.prototype.fillByBreeding = function fillByBreeding(breedFunc, fitnessFunc) {
+Population.prototype.fillByBreeding = function fillByBreeding(breedFunc) {
   if (this.members.size >= this.options.populationSize) {
     return P.resolve(this.members);
   }
@@ -74,15 +73,10 @@ Population.prototype.fillByBreeding = function fillByBreeding(breedFunc, fitness
   var parent2 = this.getRandomChromosome();
   var self = this;
   return breedFunc(parent1, parent2)
-    .then(function addChild(child) {
-      return fitnessFunc(child).then(function onFitness(fitness) {
-        child.setFitness(fitness);
-        self.addMember(child);
-      });
-    })
+    .then(self.addMember.bind(self))
     .then(function callRecursive() {
       // Keep filling until we reach the right population size
-      return self.fillByBreeding(breedFunc, fitnessFunc);
+      return self.fillByBreeding(breedFunc);
     });
 };
 

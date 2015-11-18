@@ -9,7 +9,6 @@ var simpleDelegates = require('../delegates/simple');
 
 var createChromosome = P.promisify(simpleDelegates.get('createRandomChromosome'));
 var crossoverChromosome = P.promisify(simpleDelegates.get('crossoverChromosomes'));
-var getFitness = P.promisify(simpleDelegates.get('getFitnessOfChromosome'));
 
 var sandbox = sinon.sandbox.create();
 
@@ -96,7 +95,7 @@ test('It should fill remaining chromosomes by breeding', function testBreed(t) {
 
   var breedFunc = sandbox.spy(crossoverChromosome);
 
-  population.fillByBreeding(breedFunc, getFitness)
+  population.fillByBreeding(breedFunc)
     .then(function testMembers() {
       t.equal(breedFunc.getCalls().length, 8);
       t.equal(population.getMembers().size, 10);
