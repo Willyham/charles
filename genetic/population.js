@@ -91,9 +91,9 @@ Population.prototype.fillByBreeding = function fillByBreeding(breedFunc) {
     });
 };
 
-Population.prototype.mutate = function mutate(mutateFunc) {
+Population.prototype.mutate = function mutate(mutateFunc, mutateChance) {
   var mutatePromises = this.members.map(function maybeMutate(member) {
-    if (Math.random() > 0.5) {
+    if (Math.random() > mutateChance) {
       return P.resolve(member);
     }
     return mutateFunc(member);

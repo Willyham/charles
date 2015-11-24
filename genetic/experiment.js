@@ -63,7 +63,7 @@ Experiment.prototype.run = function run(callback) {
     shouldMinimize: this.options.shouldMinimize
   });
   var breed = this.population.fillByBreeding.bind(this.population, crossoverFunc);
-  var mutate = this.population.mutate.bind(this.population, mutationFunc);
+  var mutate = this.population.mutate.bind(this.population, mutationFunc, this.options.mutationProbability);
 
   var self = this;
   function runLoop() {

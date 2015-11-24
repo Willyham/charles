@@ -20,6 +20,11 @@ var simpleDelegates = Immutable.fromJS({
     }));
   },
 
+  mutateChromosome: function mutateChromosome(chromosome, callback) {
+    chromosome.genes = chromosome.genes.set('a', Math.random());
+    callback(null, chromosome);
+  },
+
   getFitnessOfChromosome: function getFitnessOfChromosome(chromosome, callback) {
     callback(null, Math.floor(Math.random() * 100) + 1);
   }

@@ -9,6 +9,7 @@ var simpleDelegates = require('../delegates/simple');
 
 var createChromosome = P.promisify(simpleDelegates.get('createRandomChromosome'));
 var crossoverChromosome = P.promisify(simpleDelegates.get('crossoverChromosomes'));
+var mutateChromosome = P.promisify(simpleDelegates.get('mutateChromosome'));
 
 var sandbox = sinon.sandbox.create();
 
@@ -133,6 +134,50 @@ test('It should fill remaining chromosomes by breeding', function testBreed(t) {
     .then(function testMembers() {
       t.equal(breedFunc.getCalls().length, 8);
       t.equal(population.getMembers().size, 10);
+      sandbox.restore();
+    });
+});
+
+test('It should mutate a chromosomes', function testMutate(t) {
+  t.plan(2);
+
+  var population = new Charles.Population({
+    populationSize: 1
+  });
+  var chromosome = new Charles.Chromosome({
+    a: 1,
+    b: 1
+  });
+  population.addMember(chromosome);
+
+  var mutateFunc = sandbox.spy(mutateChromosome);
+
+  population.mutate(mutateFunc, 1)
+    .then(function testMembers() {
+      t.true(mutateFunc.called);
+      t.notEqual(population.getMembers().first().genes.get('a'), 1);
+      sandbox.restore();
+    });
+});
+
+test('It should honour the mutation rate', function testMutate(t) {
+  t.plan(2);
+
+  var population = new Charles.Population({
+    populationSize: 1
+  });
+  var chromosome = new Charles.Chromosome({
+    a: 1,
+    b: 1
+  });
+  population.addMember(chromosome);
+
+  var mutateFunc = sandbox.spy(mutateChromosome);
+
+  population.mutate(mutateFunc, 0)
+    .then(function testMembers() {
+      t.false(mutateFunc.called);
+      t.equal(population.getMembers().first().genes.get('a'), 1);
       sandbox.restore();
     });
 });

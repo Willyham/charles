@@ -40,8 +40,7 @@ function makeDelegates(target) {
     mutateChromosome: function mutateChromosome(chromosome, callback) {
       var digitToMutate = pickRandomDigit(5);
       var newGenes = chromosome.genes.set(String(digitToMutate), pickRandomDigit());
-      chromosome.genes = newGenes;
-      callback(null, chromosome);
+      callback(null, new Charles.Chromosome(newGenes.toJS()));
     },
 
     getFitnessOfChromosome: function getFitnessOfChromosome(chromosome, callback) {
