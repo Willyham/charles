@@ -79,6 +79,7 @@ Population.prototype.fillByBreeding = function fillByBreeding(breedFunc) {
     return P.resolve(this.members);
   }
   // TODO: Members just bread will go back into list for selection!
+  // Add selection options (roulette, fittest, etc)
   var parent1 = this.getRandomChromosome();
   var parent2 = this.getRandomChromosome();
   var self = this;
@@ -88,6 +89,19 @@ Population.prototype.fillByBreeding = function fillByBreeding(breedFunc) {
       // Keep filling until we reach the right population size
       return self.fillByBreeding(breedFunc);
     });
+};
+
+Population.prototype.mutate = function mutate(mutateFunc) {
+  var mutatePromises = this.members.map(function maybeMutate(member) {
+    if (Math.random() > 0.5) {
+      return P.resolve(member);
+    }
+    return mutateFunc(member);
+  });
+  return P.all(mutatePromises.toArray()).then(function onMutate(mutatedMembers) {
+    // TODO: Set this.members here?
+    return mutatedMembers;
+  });
 };
 
 Population.prototype.addMember = function addMember(chromosome) {

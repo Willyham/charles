@@ -4,8 +4,9 @@ var Immutable = require('immutable');
 
 var Charles = require('../../index');
 
-function pickRandomDigit() {
-  return Math.floor(Math.random() * 9) + 1;
+function pickRandomDigit(max) {
+  max = max || 9;
+  return Math.floor(Math.random() * max) + 1;
 }
 function sum(memo, value) {
   memo += value;
@@ -34,6 +35,13 @@ function makeDelegates(target) {
         4: parent2.genes.get('4'),
         5: parent2.genes.get('5')
       }));
+    },
+
+    mutateChromosome: function mutateChromosome(chromosome, callback) {
+      var digitToMutate = pickRandomDigit(5);
+      var newGenes = chromosome.genes.set(String(digitToMutate), pickRandomDigit());
+      chromosome.genes = newGenes;
+      callback(null, chromosome);
     },
 
     getFitnessOfChromosome: function getFitnessOfChromosome(chromosome, callback) {

@@ -57,26 +57,30 @@ Experiment.prototype.run = function run(callback) {
   }
   var crossoverFunc = this.delegates.crossoverChromosomes;
   var fitnessFunc = this.delegates.getFitnessOfChromosome;
+  var mutationFunc = this.delegates.mutateChromosome;
 
   var cull = this.population.cull.bind(this.population, {
     shouldMinimize: this.options.shouldMinimize
   });
   var breed = this.population.fillByBreeding.bind(this.population, crossoverFunc);
+  var mutate = this.population.mutate.bind(this.population, mutationFunc);
 
   var self = this;
   function runLoop() {
-    return self.delegates.shouldStopSimulation(self.population)
-      .then(function onStopResult(shouldStop) {
+    return self.population.calculateFitness(fitnessFunc)
+      .then(function checkStopCondition() {
+        return self.delegates.shouldStopSimulation(self.population);
+      })
+      .then(function onCheck(shouldStop) {
         if (shouldStop) {
-          // One last fitness calc in case we're stopped at a generation condition
-          return self.population.calculateFitness(fitnessFunc).nodeify(callback);
+          return P.resolve().nodeify(callback);
         }
-
         // Do evolutionary work here
         self.population.incrementGeneration();
         return self.population.calculateFitness(fitnessFunc)
           .then(cull)
           .then(breed)
+          .then(mutate)
           .then(runLoop);
       });
   }
