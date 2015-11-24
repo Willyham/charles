@@ -98,8 +98,10 @@ Population.prototype.mutate = function mutate(mutateFunc, mutateChance) {
     }
     return mutateFunc(member);
   });
+  var self = this;
+
   return P.all(mutatePromises.toArray()).then(function onMutate(mutatedMembers) {
-    // TODO: Set this.members here?
+    self.members = Immutable.List(mutatedMembers);
     return mutatedMembers;
   });
 };
