@@ -4,7 +4,7 @@ var test = require('tape');
 var P = require('bluebird');
 var sinon = require('sinon');
 
-var Charles = require('../../');
+var Species = require('../../');
 var simpleDelegates = require('../delegates/simple');
 
 var createChromosome = P.promisify(simpleDelegates.get('createRandomChromosome'));
@@ -16,7 +16,7 @@ var sandbox = sinon.sandbox.create();
 test('It should seed a new population with the correct size', function createPop(t) {
   t.plan(1);
 
-  var population = new Charles.Population({
+  var population = new Species.Population({
     populationSize: 10
   });
 
@@ -39,7 +39,7 @@ test('It should calculate fitness for all chromosomes', function testFitness(t) 
     return memo;
   };
 
-  var population = new Charles.Population({
+  var population = new Species.Population({
     populationSize: 10
   });
 
@@ -63,7 +63,7 @@ test('It should cull the correct number of chromosomes', function testCull(t) {
     return P.resolve(fitness);
   };
 
-  var population = new Charles.Population({
+  var population = new Species.Population({
     populationSize: 100,
     cullPercentage: 80
   });
@@ -92,7 +92,7 @@ test('It should cull the correct number of chromosomes when minimizing', functio
     return P.resolve(fitness);
   };
 
-  var population = new Charles.Population({
+  var population = new Species.Population({
     populationSize: 100,
     cullPercentage: 80,
     minimizeFitness: true
@@ -116,14 +116,14 @@ test('It should cull the correct number of chromosomes when minimizing', functio
 test('It should fill remaining chromosomes by breeding', function testBreed(t) {
   t.plan(2);
 
-  var population = new Charles.Population({
+  var population = new Species.Population({
     populationSize: 10
   });
-  population.addMember(new Charles.Chromosome({
+  population.addMember(new Species.Chromosome({
     a: 1,
     b: 2
   }));
-  population.addMember(new Charles.Chromosome({
+  population.addMember(new Species.Chromosome({
     a: 2,
     b: 3
   }));
@@ -141,10 +141,10 @@ test('It should fill remaining chromosomes by breeding', function testBreed(t) {
 test('It should mutate a chromosomes', function testMutate(t) {
   t.plan(2);
 
-  var population = new Charles.Population({
+  var population = new Species.Population({
     populationSize: 1
   });
-  var chromosome = new Charles.Chromosome({
+  var chromosome = new Species.Chromosome({
     a: 1,
     b: 1
   });
@@ -163,10 +163,10 @@ test('It should mutate a chromosomes', function testMutate(t) {
 test('It should honour the mutation rate', function testMutate(t) {
   t.plan(2);
 
-  var population = new Charles.Population({
+  var population = new Species.Population({
     populationSize: 1
   });
-  var chromosome = new Charles.Chromosome({
+  var chromosome = new Species.Chromosome({
     a: 1,
     b: 1
   });

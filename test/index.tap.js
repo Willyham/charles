@@ -2,7 +2,7 @@
 var test = require('tape');
 var sinon = require('sinon');
 
-var Charles = require('../');
+var Species = require('../');
 var simpleDelegates = require('./delegates/simple');
 var maxProductDelegates = require('./delegates/product').maxProduct;
 var minProductDelegates = require('./delegates/product').minProduct;
@@ -12,8 +12,8 @@ var sandbox = sinon.sandbox.create();
 
 test('It should not run before init', function testNoInit(t) {
   t.plan(1);
-  var population = new Charles.Population();
-  var experiment = new Charles.Experiment({}, population, simpleDelegates.toJS());
+  var population = new Species.Population();
+  var experiment = new Species.Experiment({}, population, simpleDelegates.toJS());
   t.throws(experiment.run.bind(experiment));
 });
 
@@ -24,8 +24,8 @@ test('It should stop immediately', function testStop(t) {
   });
 
   var delegates = simpleDelegates.set('shouldStopSimulation', shouldStopSimulation);
-  var population = new Charles.Population();
-  var experiment = new Charles.Experiment({}, population, delegates.toJS());
+  var population = new Species.Population();
+  var experiment = new Species.Experiment({}, population, delegates.toJS());
   experiment.init()
     .then(experiment.run.bind(experiment))
     .then(function checkResults() {
@@ -42,8 +42,8 @@ test('It should run for N generations', function testGenerationLoop(t) {
   });
 
   var delegates = simpleDelegates.set('shouldStopSimulation', shouldStopSimulation);
-  var population = new Charles.Population();
-  var experiment = new Charles.Experiment({}, population, delegates.toJS());
+  var population = new Species.Population();
+  var experiment = new Species.Experiment({}, population, delegates.toJS());
   experiment.init()
     .then(experiment.run.bind(experiment))
     .then(function checkResults() {
@@ -65,13 +65,13 @@ test('It should calculate new fitness', function testCalcFitness(t) {
     callback(null, fitness);
   });
 
-  var population = new Charles.Population({
+  var population = new Species.Population({
     populationSize: 10
   });
 
   var delegatesWithStop = simpleDelegates.set('shouldStopSimulation', shouldStopSimulation);
   var delegates = delegatesWithStop.set('getFitnessOfChromosome', getFitnessOfChromosome);
-  var experiment = new Charles.Experiment({}, population, delegates.toJS());
+  var experiment = new Species.Experiment({}, population, delegates.toJS());
   experiment.init()
     .then(experiment.run.bind(experiment))
     .then(function checkResults() {
@@ -86,10 +86,10 @@ test('It should calculate new fitness', function testCalcFitness(t) {
 });
 
 test('It should run a complete experiment', function testFull(t) {
-  var population = new Charles.Population({
+  var population = new Species.Population({
     populationSize: 100
   });
-  var experiment = new Charles.Experiment({}, population, maxProductDelegates.toJS());
+  var experiment = new Species.Experiment({}, population, maxProductDelegates.toJS());
   experiment.init()
     .then(experiment.run.bind(experiment))
     .then(function checkResults() {
@@ -98,11 +98,11 @@ test('It should run a complete experiment', function testFull(t) {
 });
 
 test('It should run a minimizing experiment', function testFull(t) {
-  var population = new Charles.Population({
+  var population = new Species.Population({
     populationSize: 100,
     minimizeFitness: true
   });
-  var experiment = new Charles.Experiment({}, population, minProductDelegates.toJS());
+  var experiment = new Species.Experiment({}, population, minProductDelegates.toJS());
   experiment.init()
     .then(experiment.run.bind(experiment))
     .then(function checkResults() {
@@ -111,11 +111,11 @@ test('It should run a minimizing experiment', function testFull(t) {
 });
 
 test('It should solve a more complex problem', function testFull(t) {
-  var population = new Charles.Population({
+  var population = new Species.Population({
     populationSize: 100,
     minimizeFitness: true
   });
-  var experiment = new Charles.Experiment({mutationProbability: 0.1}, population, stringMatchDelegates.toJS());
+  var experiment = new Species.Experiment({mutationProbability: 0.1}, population, stringMatchDelegates.toJS());
   experiment.init()
     .then(experiment.run.bind(experiment))
     .then(function checkResults() {
