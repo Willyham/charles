@@ -5,6 +5,8 @@ Asynchronous genetic programming framework for Node.
 Species allows you to quickly run simple evolutionary computation problems by defining a set of
 delegate functions which describe the properties of your chromosomes and how they interact.
 
+[![asciicast](https://asciinema.org/a/93hlyriy2pl8aa35pk9rpw8m5.png)](https://asciinema.org/a/93hlyriy2pl8aa35pk9rpw8m5)
+
 # Install
 
 `npm install species`
