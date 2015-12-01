@@ -12,7 +12,6 @@ function asyncNoop() {
 
 function Experiment(options, population, delegates) {
   var Options = Immutable.Record({
-    shouldMinimize: false,
     mutationProbability: 0.1,
     crossoverProbability: 0.5
   });
@@ -59,9 +58,7 @@ Experiment.prototype.run = function run(callback) {
   var fitnessFunc = this.delegates.getFitnessOfChromosome;
   var mutationFunc = this.delegates.mutateChromosome;
 
-  var cull = this.population.cull.bind(this.population, {
-    shouldMinimize: this.options.shouldMinimize
-  });
+  var cull = this.population.cull.bind(this.population);
   var breed = this.population.fillByBreeding.bind(this.population, crossoverFunc);
   var mutate = this.population.mutate.bind(this.population, mutationFunc, this.options.mutationProbability);
 
