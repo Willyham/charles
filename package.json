@@ -1,7 +1,7 @@
 {
   "name": "species",
   "description": "Asynchronous genetic programming framework in Node",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "author": "Willyham <willyd@uber.com>",
   "keywords": [],
   "engines": {
